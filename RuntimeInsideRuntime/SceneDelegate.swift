@@ -7,16 +7,49 @@
 
 import UIKit
 
+class UIWindow2: UIWindow {
+    private var windows: [RIRWindow] = []
+
+    func addWindow(_ window: RIRWindow) {
+        windows.append(window)
+        window.rootViewController!.view.translatesAutoresizingMaskIntoConstraints = false
+        rootViewController!.view.addSubview(window.rootViewController!.view)
+    }
+    
+}
+
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
 
+    var apps: [RIRAppDelegate] = []
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
         // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
-        guard let _ = (scene as? UIWindowScene) else { return }
+        guard let windowScene = (scene as? UIWindowScene) else { return }
+
+        window = UIWindow2(windowScene: windowScene)
+        window!.makeKeyAndVisible()
+        window!.rootViewController = ViewController()
+
+        apps = [
+            {
+                let app1 = A1AppDelegate()
+                app1.window = RIRWindow()
+                _ = app1.scene(scene, willConnectTo: session, options: connectionOptions)
+                (self.window as! UIWindow2).addWindow(app1.window)
+                return app1
+            }(),
+            {
+                let app2 = A1AppDelegate()
+                app2.window = RIRWindow()
+                _ = app2.scene(scene, willConnectTo: session, options: connectionOptions)
+                (self.window as! UIWindow2).addWindow(app2.window)
+                return app2
+            }(),
+        ]
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
